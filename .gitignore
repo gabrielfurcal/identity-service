@@ -1,0 +1,4 @@
+# Exlude everything
+bin
+obj
+.vscode

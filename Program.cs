@@ -1,8 +1,30 @@
+using identity_service.Context;
+using identity_service.Services.Contracts;
+using identity_service.Services.Implementations;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
+var configuration = builder.Configuration;
+
+string? connectionString = configuration.GetConnectionString("connectionString") ?? "";
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services
+    .AddAutoMapper(cfg => {}, typeof(Program))
+    .AddPooledDbContextFactory<IdentityServiceDbContext>(o =>
+        o.UseMySQL(connectionString)
+    )
+    .AddScoped<IGroupService, GroupService>()
+    .AddScoped<IRefreshTokenService, RefreshTokenService>()
+    .AddScoped<IRoleGroupService, RoleGroupService>()
+    .AddScoped<IRoleService, RoleService>()
+    .AddScoped<IUserGroupService, UserGroupService>()
+    .AddScoped<IUserRoleService, UserRoleService>()
+    .AddScoped<IUserService, UserService>()
+    .AddControllers();
 
 var app = builder.Build();
 
@@ -12,30 +34,11 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+app.MapGet("/", () => "Identity Service");
+app.MapControllers();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+// app.UseHttpsRedirection();
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

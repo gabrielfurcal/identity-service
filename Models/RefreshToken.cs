@@ -35,7 +35,7 @@ namespace identity_service.Models
         public string? IPAddress { get; set; }
 
         [Column("User_ID")]
-        public required string UserId { get; set; }
+        public required Guid UserId { get; set; }
 
         public virtual required User User { get; set; }
     }

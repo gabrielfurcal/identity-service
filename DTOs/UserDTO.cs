@@ -1,8 +1,8 @@
-namespace identity_service.Models
+namespace identity_service.DTOs
 {
     public record UserDTO(Guid Id, 
                           string Email, 
-                          string PasswordHash, 
+                          string Password, 
                           bool IsActive, 
                           DateTime CreatedAt,
                           DateTime UpdatedAt, 

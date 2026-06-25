@@ -1,4 +1,4 @@
-namespace identity_service.Models
+namespace identity_service.DTOs
 {
     public record RefreshTokenDTO(Guid Id, 
                                   string TokenHash, 

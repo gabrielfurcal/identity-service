@@ -1,4 +1,4 @@
-using identity_service.Models;
+using identity_service.DTOs;
 using identity_service.Services.Contracts;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,18 +34,17 @@ namespace identity_service.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("{Id}")]
-        public async Task<ActionResult<GroupDTO>> GetById(int Id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<GroupDTO>> GetById(int id)
         {
             try
             {
-                var group = await _groupService.FindById(Id);
+                var group = await _groupService.FindById(id);
                 return Ok(group);
             }
             catch (Exception ex)
             {
-                var errorMessage = $"Error retrieving group with ID: {Id}";
+                var errorMessage = $"Error retrieving group with ID: {id}";
 
                 _logger.LogError(ex, errorMessage);
                 return StatusCode(500, errorMessage);
@@ -53,15 +52,15 @@ namespace identity_service.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<GroupDTO>> Create([FromBody] GroupDTO Group)
+        public async Task<ActionResult<GroupDTO>> Create([FromBody] GroupDTO group)
         {
             try
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                var createdGroup = await _groupService.Save(Group, null);
-                return CreatedAtAction(nameof(GetById), new { Id = createdGroup.Id }, createdGroup);
+                var createdGroup = await _groupService.Save(group, null);
+                return CreatedAtAction(nameof(GetById), new { createdGroup.Id }, createdGroup);
             }
             catch (Exception ex)
             {
@@ -73,33 +72,38 @@ namespace identity_service.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<GroupDTO>> Update(int Id, [FromBody] GroupDTO Group)
+        public async Task<ActionResult<GroupDTO>> Update(int id, [FromBody] GroupDTO group)
         {
             try
             {
-                var updatedGroup = await _groupService.Save(Group, Id);
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var groupToSend = new GroupDTO(id, group.Name, group.Description);
+                var updatedGroup = await _groupService.Save(groupToSend, id);
+                
                 return Ok(updatedGroup);
             }
             catch (Exception ex)
             {
-                var errorMessage = $"Error updating group with ID: {Id}";
+                var errorMessage = $"Error updating group with ID: {id}";
 
                 _logger.LogError(ex, errorMessage);
                 return StatusCode(500, errorMessage);                
             }            
         }
 
-        [HttpDelete("{Id}")]
-        public async Task<ActionResult<bool>> Delete(int Id)
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<bool>> Delete(int id)
         {
             try
             {
-                var deleted = await _groupService.DeleteById(Id);
+                var deleted = await _groupService.DeleteById(id);
                 return Ok(deleted);
             }
             catch (Exception ex)
             {
-                var errorMessage = $"Error deletiing group, with ID: {Id}";
+                var errorMessage = $"Error deletiing group, with ID: {id}";
 
                 _logger.LogError(ex, errorMessage);
                 return StatusCode(500, errorMessage);                

@@ -8,10 +8,10 @@ namespace identity_service.Services.Implementations
 {
     public class BaseService<T, K, M> : IBaseService<T, K, M> where T : class
     {
-        private readonly IDbContextFactory<IdentityServiceDbContext> _contextFactory;
-        private readonly IMapper _mapper;
+        public readonly IDbContextFactory<IdentityServiceDbContext> _contextFactory;
+        public readonly IMapper _mapper;
 
-       public BaseService(IDbContextFactory<IdentityServiceDbContext> contextFactory, IMapper mapper)
+        public BaseService(IDbContextFactory<IdentityServiceDbContext> contextFactory, IMapper mapper)
         {
             this._contextFactory = contextFactory;
             this._mapper = mapper;
@@ -35,13 +35,13 @@ namespace identity_service.Services.Implementations
             }
         }
 
-        public async Task<List<M>> FindAll(Expression<Func<T, object>> Predicate)
+        public async Task<List<M>> FindAll(Expression<Func<T, object>> predicate)
         {
             try
             {
                 using(IdentityServiceDbContext _context = _contextFactory.CreateDbContext())
                 {
-                    var entities = await _context.Set<T>().Include(Predicate).ToListAsync();
+                    var entities = await _context.Set<T>().Include(predicate).ToListAsync();
                     var listResponse = entities.Select(e => _mapper.Map<T, M>(e)).ToList();
                     return listResponse;
                 }
@@ -53,7 +53,7 @@ namespace identity_service.Services.Implementations
             }
         }
 
-        public async Task<List<M>> FindAll(Expression<Func<T, object>>[] Predicates)
+        public async Task<List<M>> FindAll(Expression<Func<T, object>>[] predicates)
         {
             try
             {
@@ -61,7 +61,7 @@ namespace identity_service.Services.Implementations
                 {
                     var entities = _context.Set<T>().AsQueryable();
                     
-                    foreach (var item in Predicates)
+                    foreach (var item in predicates)
                     {
                         entities = entities.Include(item);
                     }
@@ -79,13 +79,13 @@ namespace identity_service.Services.Implementations
             }
         }
 
-        public async Task<List<M>> FindFilteringList(Expression<Func<T, bool>> Predicate)
+        public async Task<List<M>> FindFilteringList(Expression<Func<T, bool>> predicate)
         {
             try
             {
                 using(IdentityServiceDbContext _context = _contextFactory.CreateDbContext())
                 {
-                    var entities = await _context.Set<T>().Where(Predicate).ToListAsync();
+                    var entities = await _context.Set<T>().Where(predicate).ToListAsync();
                     var listResponse = entities.Select(e => _mapper.Map<T, M>(e)).ToList();
 
                     return listResponse;
@@ -98,13 +98,13 @@ namespace identity_service.Services.Implementations
             }
         }
 
-        public async Task<M> FindById(K Id)
+        public async Task<M> FindById(K id)
         {
             try
             {
                 using(IdentityServiceDbContext _context = _contextFactory.CreateDbContext())
                 {
-                    var entity = await _context.Set<T>().FindAsync(Id);
+                    var entity = await _context.Set<T>().FindAsync(id);
 
                     if (entity is null) throw new Exception($"{nameof(T)} not found");
 
@@ -113,28 +113,33 @@ namespace identity_service.Services.Implementations
             } 
             catch (Exception ex)
             {
-                Console.WriteLine($"Error finding element of {nameof(T)}, with ID: {Id}. Message: {ex.Message}");
+                Console.WriteLine($"Error finding element of {nameof(T)}, with ID: {id}. Message: {ex.Message}");
                 throw new Exception(ex.Message);
             }            
         }
-
-        public async Task<M> Save(M Dto, K? Id)
+        
+        public async Task<M> Save(M dto, K? id)
         {
             try
             {
                 using(IdentityServiceDbContext _context = _contextFactory.CreateDbContext())
                 {
-                    var entity = _mapper.Map<M, T>(Dto);
+                    T? entity;
 
-                    if (Id is null) await _context.Set<T>().AddAsync(entity);
+                    if (id is null) 
+                    {
+                        entity = _mapper.Map<M, T>(dto);
+                        await _context.Set<T>().AddAsync(entity!);
+                    }
                     else
                     {
-                        _context.Entry(entity).State = EntityState.Modified;
+                        entity = await _context.Set<T>().FindAsync(id);
+                        _mapper.Map<M, T>(dto, entity!);
                     }
 
                     await _context.SaveChangesAsync();
 
-                    return _mapper.Map<T, M>(entity);
+                    return _mapper.Map<T, M>(entity!);
                 }
             } 
             catch (Exception ex)
@@ -144,13 +149,13 @@ namespace identity_service.Services.Implementations
             }              
         }
 
-        public async Task<bool> DeleteById(K Id)
+        public async Task<bool> DeleteById(K id)
         {
             try
             {
                 using(IdentityServiceDbContext _context = _contextFactory.CreateDbContext())
                 {
-                    var entity = await _context.Set<T>().FindAsync(Id);
+                    var entity = await _context.Set<T>().FindAsync(id);
 
                     if (entity != null)
                     {
@@ -167,7 +172,7 @@ namespace identity_service.Services.Implementations
             } 
             catch (Exception ex)
             {
-                Console.WriteLine($"Error deleting element of {nameof(T)}, with ID: {Id}. Message: {ex.Message}");
+                Console.WriteLine($"Error deleting element of {nameof(T)}, with ID: {id}. Message: {ex.Message}");
                 throw new Exception(ex.Message);
             }                
         }

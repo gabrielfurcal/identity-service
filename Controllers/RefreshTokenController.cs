@@ -1,9 +1,11 @@
 using identity_service.DTOs;
 using identity_service.Services.Contracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace identity_service.Controllers
 {
+    [Authorize(Roles = "ADMIN")]
     [ApiController]
     [Route("api/[controller]")]
     public class RefreshTokenController : ControllerBase
@@ -33,6 +35,7 @@ namespace identity_service.Controllers
             }
         }
 
+        [Authorize(Roles = "EMPLOYEE,PASSENGER")]
         [HttpGet("{id}")]
         public async Task<ActionResult<RefreshTokenDTO>> GetById(Guid id)
         {
@@ -49,6 +52,7 @@ namespace identity_service.Controllers
             }
         }
 
+        [Authorize(Roles = "EMPLOYEE,PASSENGER")]
         [HttpPost]
         public async Task<ActionResult<RefreshTokenDTO>> Create([FromBody] RefreshTokenDTO refreshToken)
         {
@@ -68,6 +72,7 @@ namespace identity_service.Controllers
             }
         }
 
+        [Authorize(Roles = "EMPLOYEE,PASSENGER")]
         [HttpPut("{id}")]
         public async Task<ActionResult<RefreshTokenDTO>> Update(Guid id, [FromBody] RefreshTokenDTO refreshToken)
         {

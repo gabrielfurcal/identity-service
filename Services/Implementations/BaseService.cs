@@ -118,7 +118,7 @@ namespace identity_service.Services.Implementations
             }            
         }
         
-        public async Task<M> Save(M dto, K? id)
+        public virtual async Task<M> Save(M dto, K? id)
         {
             try
             {

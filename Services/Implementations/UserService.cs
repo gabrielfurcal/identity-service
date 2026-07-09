@@ -4,7 +4,7 @@ using identity_service.Models;
 using identity_service.DTOs;
 using identity_service.Services.Contracts;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
+using BC = BCrypt.Net.BCrypt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -27,14 +27,16 @@ namespace identity_service.Services.Implementations
             {
                 using(IdentityServiceDbContext _context = _contextFactory.CreateDbContext())
                 {
-                    var userMapped = _mapper.Map<UserDTO, User>(user);
-                    var entity = await _context.Set<User>().Where(x => x.Email == userMapped.Email && 
-                        new PasswordHasher<User>().VerifyHashedPassword(x, x.PasswordHash, userMapped.PasswordHash) == PasswordVerificationResult.Success)
+                    var entity = await _context.Set<User>().Where(x => x.Email == user.Email)
                         .FirstOrDefaultAsync();
 
                     if (entity is null) throw new Exception("Credentials do not match");
 
-                    return CreateToken(entity);
+                    if(!BC.Verify(user.Password, entity.PasswordHash)) throw new Exception("Credentials do not match");
+
+                    var roles = await _context.UserRoleView.Where(x => x.UserId == entity.Id).ToListAsync();
+
+                    return CreateToken(entity, roles);
                 }
             }
             catch (Exception ex)
@@ -44,11 +46,48 @@ namespace identity_service.Services.Implementations
             }
         }
 
-        private string CreateToken(User user)
+        public override async Task<UserDTO> Save(UserDTO dto, Guid? id)
+        {
+            try
+            {
+                using(IdentityServiceDbContext _context = _contextFactory.CreateDbContext())
+                {
+                    User? entity;
+
+                    if (id is null) 
+                    {
+                        entity = _mapper.Map<UserDTO, User>(dto);
+                        entity.PasswordHash = BC.HashPassword(dto.Password);
+                        await _context.Set<User>().AddAsync(entity!);
+                    }
+                    else
+                    {
+                        entity = await _context.Set<User>().FindAsync(id);
+                        _mapper.Map(dto, entity!);
+                    }
+
+                    await _context.SaveChangesAsync();
+
+                    return _mapper.Map<User, UserDTO>(entity!);
+                }
+            } 
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving entity of User. Message: {ex.Message}");
+                throw new Exception(ex.Message);
+            }              
+        }
+
+        private string CreateToken(User user, List<UserRoleView> roles)
         {
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Email, user.Email)
+            };
+
+            foreach(var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role.RoleName));
             };
 
             var key = new SymmetricSecurityKey(

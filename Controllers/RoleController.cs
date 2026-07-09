@@ -1,9 +1,11 @@
 using identity_service.DTOs;
 using identity_service.Services.Contracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace identity_service.Controllers
 {
+    [Authorize(Roles = "ADMIN")]
     [ApiController]
     [Route("api/[controller]")]
     public class RoleController : ControllerBase

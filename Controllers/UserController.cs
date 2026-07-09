@@ -1,5 +1,6 @@
 using identity_service.DTOs;
 using identity_service.Services.Contracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace identity_service.Controllers
@@ -17,6 +18,7 @@ namespace identity_service.Controllers
             _logger = logger;
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpGet("All")]
         public async Task<ActionResult<IEnumerable<UserDTO>>> GetAll()
         {
@@ -33,6 +35,7 @@ namespace identity_service.Controllers
             }
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpGet("{id}")]
         public async Task<ActionResult<UserDTO>> GetById(Guid id)
         {
@@ -68,7 +71,7 @@ namespace identity_service.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("Login")]
         public async Task<ActionResult<UserDTO>> Login([FromBody] UserDTO user)
         {
             try
@@ -87,6 +90,7 @@ namespace identity_service.Controllers
             }
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPut("{id}")]
         public async Task<ActionResult<UserDTO>> Update(Guid id, [FromBody] UserDTO user)
         {
@@ -108,6 +112,7 @@ namespace identity_service.Controllers
             }
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpDelete("{Id}")]
         public async Task<ActionResult<bool>> Delete(Guid id)
         {

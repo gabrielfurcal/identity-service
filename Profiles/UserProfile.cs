@@ -1,8 +1,6 @@
 using AutoMapper;
 using identity_service.Models;
 using identity_service.DTOs;
-using Microsoft.AspNetCore.Identity;
-
 namespace identity_service.Profiles
 {
     public class UserProfile : Profile
@@ -10,9 +8,16 @@ namespace identity_service.Profiles
         public UserProfile()
         {
             CreateMap<User, UserDTO>()
-                .ForMember(dest => dest.Password, act => act.MapFrom(src => new PasswordHasher<User>().HashPassword(src, src.PasswordHash)));
+                .ForMember(dest => dest.Password, opt => opt.MapFrom(src => src.PasswordHash))
+                .ForMember(dest => dest.RefreshTokens, opt => opt.Ignore())
+                .ForMember(dest => dest.UserRoles, opt => opt.Ignore())
+                .ForMember(dest => dest.UserGroups, opt => opt.Ignore());
+
             CreateMap<UserDTO, User>()
-                .ForMember(dest => dest.PasswordHash, act => act.MapFrom(src => src.Password));
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
+                .ForMember(dest => dest.RefreshTokens, opt => opt.Ignore())
+                .ForMember(dest => dest.UserRoles, opt => opt.Ignore())
+                .ForMember(dest => dest.UserGroups, opt => opt.Ignore());
         }
     }
 }

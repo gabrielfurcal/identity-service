@@ -79,7 +79,10 @@ namespace identity_service.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                var created = await _userService.Login(user);
+                string deviceInfo = HttpContext.Request.Headers["User-Agent"].ToString();
+                string? ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+
+                var created = await _userService.Login(user, deviceInfo, ipAddress!);
                 return Ok(created);
             }
             catch (Exception ex)

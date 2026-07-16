@@ -117,6 +117,26 @@ namespace identity_service.Services.Implementations
                 throw new Exception(ex.Message);
             }            
         }
+
+        public async Task<M> FindBy(Expression<Func<T, bool>> predicate)
+        {
+            try
+            {
+                using(IdentityServiceDbContext _context = _contextFactory.CreateDbContext())
+                {
+                    var entity = await _context.Set<T>().Where(predicate).FirstOrDefaultAsync();
+
+                    if (entity is null) throw new Exception($"{nameof(T)} not found");
+
+                    return _mapper.Map<T, M>(entity);
+                }
+            } 
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error finding element of {nameof(T)}. Message: {ex.Message}");
+                throw new Exception(ex.Message);
+            }
+        }
         
         public virtual async Task<M> Save(M dto, K? id)
         {

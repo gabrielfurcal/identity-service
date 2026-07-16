@@ -5,6 +5,6 @@ namespace identity_service.Services.Contracts
 {
     public interface IUserService : IBaseService<User, Guid?, UserDTO>
     {
-        public Task<string> Login(UserDTO user);
+        public Task<LoginDTO> Login(UserDTO user, string deviceInfo, string? ipAddress);
     }
 }

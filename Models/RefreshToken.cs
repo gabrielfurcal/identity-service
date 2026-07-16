@@ -8,7 +8,7 @@ namespace identity_service.Models
     {
         [Key]
         [Column("Ref_Tk_ID")]
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
 
         [StringLength(128)]
         [Column("Token_Hash")]
@@ -37,6 +37,6 @@ namespace identity_service.Models
         [Column("User_ID")]
         public required Guid UserId { get; set; }
 
-        public virtual required User User { get; set; }
+        public virtual User? User { get; set; }
     }
 }

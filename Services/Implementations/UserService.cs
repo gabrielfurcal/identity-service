@@ -9,19 +9,22 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
+using identity_service.Utils;
 
 namespace identity_service.Services.Implementations
 {
     public class UserService : BaseService<User, Guid?, UserDTO>, IUserService
     {
         private readonly IConfiguration _configuration;
+        private readonly IRefreshTokenService _refreshTokenService;
 
-        public UserService(IConfiguration configuration, IDbContextFactory<IdentityServiceDbContext> contextFactory, IMapper mapper) : base(contextFactory, mapper)
+        public UserService(IConfiguration configuration, IRefreshTokenService refreshTokenService, IDbContextFactory<IdentityServiceDbContext> contextFactory, IMapper mapper) : base(contextFactory, mapper)
         {
             this._configuration = configuration;
+            this._refreshTokenService = refreshTokenService;
         }
 
-        public async Task<string> Login(UserDTO user)
+        public async Task<LoginDTO> Login(UserDTO user, string deviceInfo, string? ipAddress)
         {
             try
             {
@@ -36,7 +39,10 @@ namespace identity_service.Services.Implementations
 
                     var roles = await _context.UserRoleView.Where(x => x.UserId == entity.Id).ToListAsync();
 
-                    return CreateToken(entity, roles);
+                    var jwt = new JWTGenerator(_configuration).CreateToken(entity, roles);
+                    var refreshToken = await _refreshTokenService.Generate(entity.Id, deviceInfo, ipAddress);
+
+                    return new LoginDTO(jwt, refreshToken.TokenHash!);
                 }
             }
             catch (Exception ex)
@@ -76,34 +82,6 @@ namespace identity_service.Services.Implementations
                 Console.WriteLine($"Error saving entity of User. Message: {ex.Message}");
                 throw new Exception(ex.Message);
             }              
-        }
-
-        private string CreateToken(User user, List<UserRoleView> roles)
-        {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Email, user.Email)
-            };
-
-            foreach(var role in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role.RoleName));
-            };
-
-            var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_configuration.GetValue<string>("AppSettings:Token")!));
-
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
-
-            var tokenDescriptor = new JwtSecurityToken(
-                issuer: _configuration.GetValue<string>("AppSettings:Issuer"),
-                audience: _configuration.GetValue<string>("AppSettings:Audience"),
-                claims: claims,
-                expires: DateTime.UtcNow.AddDays(1),
-                signingCredentials: creds
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
         }
     }
 }

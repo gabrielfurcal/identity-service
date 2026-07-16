@@ -9,6 +9,7 @@ namespace identity_service.Services.Contracts
         Task<List<M>> FindAll(Expression<Func<T, object>>[] predicate);
         Task<List<M>> FindFilteringList(Expression<Func<T, bool>> predicate);
         Task<M> FindById(K id);
+        Task<M> FindBy(Expression<Func<T, bool>> predicate);
         Task<M> Save(M dto, K? id);
         Task<bool> DeleteById(K id);
     }

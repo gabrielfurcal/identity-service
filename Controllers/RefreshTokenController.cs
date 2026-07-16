@@ -1,11 +1,11 @@
 using identity_service.DTOs;
+using identity_service.Models;
 using identity_service.Services.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace identity_service.Controllers
 {
-    [Authorize(Roles = "ADMIN")]
     [ApiController]
     [Route("api/[controller]")]
     public class RefreshTokenController : ControllerBase
@@ -19,6 +19,7 @@ namespace identity_service.Controllers
             _logger = logger;
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpGet("All")]
         public async Task<ActionResult<IEnumerable<RefreshTokenDTO>>> GetAll()
         {
@@ -35,7 +36,7 @@ namespace identity_service.Controllers
             }
         }
 
-        [Authorize(Roles = "EMPLOYEE,PASSENGER")]
+        [Authorize(Roles = "ADMIN")]
         [HttpGet("{id}")]
         public async Task<ActionResult<RefreshTokenDTO>> GetById(Guid id)
         {
@@ -52,7 +53,7 @@ namespace identity_service.Controllers
             }
         }
 
-        [Authorize(Roles = "EMPLOYEE,PASSENGER")]
+        [Authorize(Roles = "ADMIN")]
         [HttpPost]
         public async Task<ActionResult<RefreshTokenDTO>> Create([FromBody] RefreshTokenDTO refreshToken)
         {
@@ -72,7 +73,26 @@ namespace identity_service.Controllers
             }
         }
 
-        [Authorize(Roles = "EMPLOYEE,PASSENGER")]
+        [HttpPost("Jwt")]
+        public async Task<ActionResult<LoginDTO>> Jwt([FromBody] RefreshTokenDTO refreshToken)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var jwtToken = await _refreshTokenService.Validate(refreshToken);
+                return Ok(jwtToken);
+            }
+            catch (Exception ex)
+            {
+                var errorMessage = "Error refreshing jwt token";
+                _logger.LogError(ex, errorMessage);
+                return StatusCode(500, errorMessage);
+            }
+        }
+
+        [Authorize(Roles = "ADMIN")]
         [HttpPut("{id}")]
         public async Task<ActionResult<RefreshTokenDTO>> Update(Guid id, [FromBody] RefreshTokenDTO refreshToken)
         {
@@ -94,6 +114,7 @@ namespace identity_service.Controllers
             }
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpDelete("{id}")]
         public async Task<ActionResult<bool>> Delete(Guid id)
         {

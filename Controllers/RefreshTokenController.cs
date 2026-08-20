@@ -1,5 +1,4 @@
 using identity_service.DTOs;
-using identity_service.Models;
 using identity_service.Services.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

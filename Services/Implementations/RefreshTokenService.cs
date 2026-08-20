@@ -53,8 +53,6 @@ namespace identity_service.Services.Implementations
             {
                 using(IdentityServiceDbContext _context = _contextFactory.CreateDbContext())
                 {
-                    var existingRefreshToken = await _context.Set<RefreshToken>().Where(x => x.UserId == userId && x.ReplacedByTokenId == null).FirstOrDefaultAsync();
-
                     RefreshToken refreshToken = new RefreshToken()
                     {
                         Id = Guid.NewGuid(),
@@ -68,7 +66,10 @@ namespace identity_service.Services.Implementations
                         UserId = userId
                     };
 
-                     await _context.Set<RefreshToken>().AddAsync(refreshToken);
+                    await _context.Set<RefreshToken>().AddAsync(refreshToken);
+                    await _context.SaveChangesAsync();
+
+                    var existingRefreshToken = await _context.Set<RefreshToken>().Where(x => x.UserId == userId && x.ReplacedByTokenId == null && x.Id != refreshToken.Id).FirstOrDefaultAsync();
 
                     if(existingRefreshToken is not null)
                     {

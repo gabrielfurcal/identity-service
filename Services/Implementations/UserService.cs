@@ -5,10 +5,6 @@ using identity_service.DTOs;
 using identity_service.Services.Contracts;
 using Microsoft.EntityFrameworkCore;
 using BC = BCrypt.Net.BCrypt;
-using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using System.IdentityModel.Tokens.Jwt;
 using identity_service.Utils;
 
 namespace identity_service.Services.Implementations

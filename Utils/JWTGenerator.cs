@@ -19,12 +19,13 @@ namespace identity_service.Utils
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Email, user.Email)
+                new Claim("Email", user.Email),
+                new Claim("ID", user.Id.ToString()),
             };
 
             foreach(var role in roles)
             {
-                claims.Add(new Claim(ClaimTypes.Role, role.RoleName));
+                claims.Add(new Claim("Role", role.RoleName));
             };
 
             var key = new SymmetricSecurityKey(

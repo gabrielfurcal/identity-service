@@ -26,7 +26,7 @@ namespace identity_service.Models
         [Column("Replaced_By_Token_ID")]
         public Guid? ReplacedByTokenId { get; set; }
 
-        [StringLength(60)]
+        [StringLength(200)]
         [Column("Device_Info")]
         public string? DeviceInfo { get; set; }
 

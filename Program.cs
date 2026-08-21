@@ -12,6 +12,17 @@ var configuration = builder.Configuration;
 string? connectionString = configuration.GetConnectionString("connectionString") ?? "";
 
 // Add services to the container.
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAdminInputs",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -49,6 +60,8 @@ builder.Services
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseCors("AllowAdminInputs");
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();

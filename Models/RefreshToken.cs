@@ -8,7 +8,7 @@ namespace identity_service.Models
     {
         [Key]
         [Column("Ref_Tk_ID")]
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
 
         [StringLength(128)]
         [Column("Token_Hash")]
@@ -26,7 +26,7 @@ namespace identity_service.Models
         [Column("Replaced_By_Token_ID")]
         public Guid? ReplacedByTokenId { get; set; }
 
-        [StringLength(60)]
+        [StringLength(200)]
         [Column("Device_Info")]
         public string? DeviceInfo { get; set; }
 
@@ -35,8 +35,8 @@ namespace identity_service.Models
         public string? IPAddress { get; set; }
 
         [Column("User_ID")]
-        public required string UserId { get; set; }
+        public required Guid UserId { get; set; }
 
-        public virtual required User User { get; set; }
+        public virtual User? User { get; set; }
     }
 }

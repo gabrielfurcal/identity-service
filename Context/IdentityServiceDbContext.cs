@@ -12,11 +12,14 @@ namespace identity_service.Context
 
         public required DbSet<User> User { get; set; }
         public required DbSet<RefreshToken> RefreshToken { get; set; }
+        public required DbSet<Permission> Permission { get; set; }
         public required DbSet<Role> Role { get; set; }
         public required DbSet<Group> Group { get; set; }
+        public required DbSet<UserPermission> UserPermission { get; set; }
         public required DbSet<UserRole> UserRole { get; set; }
         public required DbSet<UserGroup> UserGroup { get; set; }
         public required DbSet<RoleGroup> RoleGroup { get; set; }
+        public required DbSet<RolePermission> RolePermission { get; set; }
         public required DbSet<UserRoleView> UserRoleView { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

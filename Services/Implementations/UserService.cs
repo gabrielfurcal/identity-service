@@ -33,9 +33,9 @@ namespace identity_service.Services.Implementations
 
                     if(!BC.Verify(user.Password, entity.PasswordHash)) throw new Exception("Credentials do not match");
 
-                    var roles = await _context.UserRoleView.Where(x => x.UserId == entity.Id).ToListAsync();
+                    var permissions = await _context.UserPermissionView.Where(x => x.UserId == entity.Id).ToListAsync();
 
-                    var jwt = new JWTGenerator(_configuration).CreateToken(entity, roles);
+                    var jwt = new JWTGenerator(_configuration).CreateToken(entity, permissions);
                     var refreshToken = await _refreshTokenService.Generate(entity.Id, deviceInfo, ipAddress);
 
                     return new LoginDTO(jwt, refreshToken.TokenHash!);

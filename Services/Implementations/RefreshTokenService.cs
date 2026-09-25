@@ -33,7 +33,7 @@ namespace identity_service.Services.Implementations
 
                     if(user is null) throw new Exception("Invalid User");
 
-                    var roles = await _context.UserRoleView.Where(x => x.UserId == user.Id).ToListAsync();
+                    var roles = await _context.UserPermissionView.Where(x => x.UserId == user.Id).ToListAsync();
 
                     string jwt = new JWTGenerator(_configuration).CreateToken(user, roles);
 

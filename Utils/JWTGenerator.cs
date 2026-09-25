@@ -15,7 +15,7 @@ namespace identity_service.Utils
             this._configuration = configuration;
         }
 
-        public string CreateToken(User user, List<UserRoleView> roles)
+        public string CreateToken(User user, List<UserPermissionView> permissions)
         {
             var claims = new List<Claim>
             {
@@ -23,9 +23,9 @@ namespace identity_service.Utils
                 new Claim("ID", user.Id.ToString()),
             };
 
-            foreach(var role in roles)
+            foreach(var permission in permissions)
             {
-                claims.Add(new Claim("Role", role.RoleName));
+                claims.Add(new Claim("Permissions", permission.PermissionName));
             };
 
             var key = new SymmetricSecurityKey(

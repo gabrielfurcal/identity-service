@@ -25,7 +25,7 @@ namespace identity_service.Services.Implementations
                 using(IdentityServiceDbContext _context = _contextFactory.CreateDbContext())
                 {
                     var existingRefreshToken = await _context.Set<RefreshToken>()
-                        .Where(x => x.TokenHash == refreshToken.TokenHash && x.ExpiresAt > DateTime.Now).FirstOrDefaultAsync();
+                        .Where(x => x.TokenHash == refreshToken.TokenHash && x.ExpiresAt > DateTime.Now && x.ReplacedByTokenId == null).FirstOrDefaultAsync();
 
                     if(existingRefreshToken is null) throw new Exception("Invalid RefreshToken");
 

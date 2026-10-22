@@ -18,7 +18,7 @@ namespace identity_service.Controllers
             _logger = logger;
         }
 
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "USER_VIEW")]
         [HttpGet("All")]
         public async Task<ActionResult<IEnumerable<UserDTO>>> GetAll()
         {

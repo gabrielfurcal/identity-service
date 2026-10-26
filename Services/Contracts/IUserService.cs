@@ -5,6 +5,7 @@ namespace identity_service.Services.Contracts
 {
     public interface IUserService : IBaseService<User, Guid?, UserDTO>
     {
+        public Task<UserPageResponse> FindAll(int offset, int limit);
         public Task<LoginDTO> Login(UserDTO user, string deviceInfo, string? ipAddress);
     }
 }

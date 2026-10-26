@@ -35,6 +35,23 @@ namespace identity_service.Controllers
             }
         }
 
+        [Authorize(Roles = "USER_VIEW")]
+        [HttpGet("Paginated")]
+        public async Task<ActionResult<UserPageResponse>> GetAll(int offset, int limit)
+        {
+            try
+            {
+                var items = await _userService.FindAll(offset, limit);
+                return Ok(items);
+            }
+            catch (Exception ex)
+            {
+                var errorMessage = "Error retrieving users";
+                _logger.LogError(ex, errorMessage);
+                return StatusCode(500, errorMessage);
+            }
+        }
+
         [Authorize(Roles = "ADMIN")]
         [HttpGet("{id}")]
         public async Task<ActionResult<UserDTO>> GetById(Guid id)

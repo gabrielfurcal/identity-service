@@ -20,6 +20,24 @@ namespace identity_service.Services.Implementations
             this._refreshTokenService = refreshTokenService;
         }
 
+        public async Task<UserPageResponse> FindAll(int offset, int limit)
+        {
+            try
+            {
+                using(IdentityServiceDbContext _context = _contextFactory.CreateDbContext())
+                {
+                    var totalCount = await _context.User.CountAsync();
+                    var users = await _context.User.Where(x => x.IsActive == true).Skip(offset * limit).Take(limit).Select(e => _mapper.Map<User, UserDTO>(e)).ToListAsync();
+                    return new UserPageResponse { Users = users, TotalCount = totalCount };
+                }
+            } 
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error finding List of User. Message: {ex.Message}");
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<LoginDTO> Login(UserDTO user, string deviceInfo, string? ipAddress)
         {
             try

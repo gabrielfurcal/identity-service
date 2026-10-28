@@ -52,7 +52,7 @@ namespace identity_service.Controllers
             }
         }
 
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "USER_VIEW")]
         [HttpGet("{id}")]
         public async Task<ActionResult<UserDTO>> GetById(Guid id)
         {
@@ -70,6 +70,7 @@ namespace identity_service.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "USER_CREATE")]
         public async Task<ActionResult<UserDTO>> Create([FromBody] UserDTO user)
         {
             try
@@ -110,7 +111,7 @@ namespace identity_service.Controllers
             }
         }
 
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "USER_EDIT")]
         [HttpPut("{id}")]
         public async Task<ActionResult<UserDTO>> Update(Guid id, [FromBody] UserDTO user)
         {
@@ -132,18 +133,18 @@ namespace identity_service.Controllers
             }
         }
 
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "USER_DELETE")]
         [HttpDelete("{Id}")]
         public async Task<ActionResult<bool>> Delete(Guid id)
         {
             try
             {
-                var deleted = await _userService.DeleteById(id);
+                var deleted = await _userService.DeactivateById(id);
                 return Ok(deleted);
             }
             catch (Exception ex)
             {
-                var errorMessage = $"Error deleting user with ID: {id}";
+                var errorMessage = $"Error deactivating user with ID: {id}";
                 _logger.LogError(ex, errorMessage);
                 return StatusCode(500, errorMessage);
             }

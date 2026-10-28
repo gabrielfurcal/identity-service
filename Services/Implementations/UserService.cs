@@ -97,5 +97,33 @@ namespace identity_service.Services.Implementations
                 throw new Exception(ex.Message);
             }              
         }
+
+        public async Task<bool> DeactivateById(Guid id)
+        {
+            try
+            {
+                using(IdentityServiceDbContext _context = _contextFactory.CreateDbContext())
+                {
+                    var entity = await _context.User.FindAsync(id);
+
+                    if (entity != null)
+                    {
+                        entity.IsActive = false;
+                        await _context.SaveChangesAsync();
+
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            } 
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deactivating element of User, with ID: {id}. Message: {ex.Message}");
+                throw new Exception(ex.Message);
+            }    
+        }
     }
 }

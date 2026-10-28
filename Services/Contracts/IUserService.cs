@@ -7,5 +7,6 @@ namespace identity_service.Services.Contracts
     {
         public Task<UserPageResponse> FindAll(int offset, int limit);
         public Task<LoginDTO> Login(UserDTO user, string deviceInfo, string? ipAddress);
+        public Task<bool> DeactivateById(Guid id);
     }
 }
